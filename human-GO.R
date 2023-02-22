@@ -1,8 +1,12 @@
 library(org.Hs.eg.db)
-prefix <- paste0("human-GO_", packageVersion("org.Hs.eg.db"))
+prefix <- "human-GO" 
 mappings <- select(org.Hs.eg.db, keytype="GO", keys=keys(org.Hs.eg.db, "GO"), columns=c("ENTREZID", "SYMBOL", "ENSEMBL"))
 
 all.gene.info <- DataFrame(mappings[,c("ENTREZID", "SYMBOL", "ENSEMBL")])
+for (x in colnames(all.gene.info)) {
+    col <- all.gene.info[[x]] 
+    all.gene.info[[x]][is.na(col)] <- ""
+}
 genes <- unique(all.gene.info)
 m <- match(all.gene.info, genes)
 
@@ -29,6 +33,4 @@ write(payload, file=con)
 close(con)
 
 # Emitting relevant session information.
-con <- gzfile(paste0(prefix, "_extra.txt.gz"), open="wb")
-write.csv(as.data.frame(metadata(org.Hs.eg.db)), file=con, quote=FALSE, row.names=FALSE)
-close(con)
+print(metadata(org.Hs.eg.db))

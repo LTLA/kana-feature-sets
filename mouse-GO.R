@@ -1,8 +1,12 @@
 library(org.Mm.eg.db)
-prefix <- paste0("mouse-GO_", packageVersion("org.Mm.eg.db"))
+prefix <- "mouse-GO" 
 mappings <- select(org.Mm.eg.db, keytype="GO", keys=keys(org.Mm.eg.db, "GO"), columns=c("ENTREZID", "SYMBOL", "ENSEMBL"))
 
 all.gene.info <- DataFrame(mappings[,c("ENTREZID", "SYMBOL", "ENSEMBL")])
+for (x in colnames(all.gene.info)) {
+    col <- all.gene.info[[x]] 
+    all.gene.info[[x]][is.na(col)] <- ""
+}
 genes <- unique(all.gene.info)
 m <- match(all.gene.info, genes)
 
@@ -29,6 +33,4 @@ write(payload, file=con)
 close(con)
 
 # Emitting relevant session information.
-con <- gzfile(paste0(prefix, "_extra.txt.gz"), open="wb")
-write.csv(as.data.frame(metadata(org.Mm.eg.db)), file=con, quote=FALSE, row.names=FALSE)
-close(con)
+print(org.Mm.eg.db)
